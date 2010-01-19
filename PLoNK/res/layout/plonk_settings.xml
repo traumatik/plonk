@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/SettingsLayout"
+	android:layout_width="fill_parent" android:layout_height="wrap_content"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical">
+	<TextView android:layout_height="wrap_content"
+		android:layout_width="fill_parent" android:id="@+id/add_pch_ip_header" 
+		android:text="@string/add_pch_ip_header"/>
+	<LinearLayout android:id="@+id/SettingsLayout1"
+	android:layout_width="fill_parent" android:layout_height="wrap_content"
+	android:orientation="horizontal">
+		<EditText android:id="@+id/pchIpInput" android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:hint="@string/add_pch_ip_hint"
+			android:layout_weight="1" />
+		<Button android:id="@+id/pchIpSaveButton" android:text="@string/button_pch_ip_add"
+			android:layout_height="wrap_content" android:layout_width="wrap_content" />
+    </LinearLayout>
+	
+	<TextView android:layout_height="wrap_content"
+		android:layout_width="fill_parent" android:id="@+id/add_llink_ip_header"
+		android:text="@string/add_llink_ip_header" />
+	<LinearLayout android:id="@+id/SettingsLayout2"
+	android:layout_width="fill_parent" android:layout_height="wrap_content"
+	android:orientation="horizontal">
+		<EditText android:id="@+id/llinkIpInput" android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:hint="@string/add_llink_ip_hint"
+			android:layout_weight="1" />
+		<Button android:id="@+id/llinkIpSaveButton" android:text="@string/button_llink_ip_add"
+			android:layout_height="wrap_content" android:layout_width="wrap_content" />
+	</LinearLayout>
+	
+<CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/CheckBoxA100" android:onClick="myCheckBoxAhandler" android:text="@string/checkBoxA100"></CheckBox>
+<CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/CheckBoxC200" android:text="@string/checkBoxC200" android:onClick="myCheckBoxChandler"></CheckBox>
+</LinearLayout>

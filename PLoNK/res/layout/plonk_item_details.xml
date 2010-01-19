@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:orientation="vertical" android:layout_height="fill_parent">
+	<TextView android:id="@+id/plonkItemView"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:textSize="10sp" android:text="hello"/>
+	<LinearLayout android:id="@+id/LinearLayout01" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_gravity="fill_horizontal">
+	    <ImageButton android:id="@+id/buttonPlay" android:layout_width="100dip" 
+	    android:layout_height="wrap_content" android:src="@android:drawable/ic_media_play"/>
+	    <Button android:id="@+id/buttonCancel" android:layout_width="100dip" 
+	    android:layout_height="wrap_content" android:text="Cancel"/>
+	</LinearLayout>
+</LinearLayout>
