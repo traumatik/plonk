@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="eu.wieslander.pax" android:clearTaskOnLaunch="true" android:versionCode="2" android:versionName="0.0.2">
+    <uses-permission android:name="android.permission.INTERNET" />
+	<application android:icon="@drawable/icon" android:label="@string/app_name">
+		<activity android:name=".PaxFileBrowser" android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+		<activity android:name=".Pax" android:label="@string/app_name"></activity>
+		<activity android:name=".PaxFileBrowser" android:label="@string/send_with_pax">
+		    <intent-filter>
+				<action android:name="android.intent.action.SEND" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.SELECTED_ALTERNATIVE" />
+				<data android:mimeType="image/*" />                 <!-- MIME type for anything -->
+			</intent-filter>
+		</activity>
+				<activity android:name=".PaxFileBrowser" android:label="@string/send_with_pax">
+		    <intent-filter>
+				<action android:name="android.intent.action.SEND" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.SELECTED_ALTERNATIVE" />
+				<data android:mimeType="video/*" />                 <!-- MIME type for anything -->
+			</intent-filter>
+		</activity>
+				<activity android:name=".PaxFileBrowser" android:label="@string/send_with_pax">
+		    <intent-filter>
+				<action android:name="android.intent.action.SEND" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.SELECTED_ALTERNATIVE" />
+				<data android:mimeType="music/*" />                 <!-- MIME type for anything -->
+			</intent-filter>
+		</activity>
+		<service android:name=".PaxService" android:label="Pax Service">
+		     <intent-filter>
+		        <action android:name="eu.wieslander.pax.SERVICE"></action>
+		     </intent-filter>
+		</service>
+		<activity android:name=".PaxAlert" android:label="Stop Pax Service?" android:icon="@drawable/icon"
+                 android:theme="@android:style/Theme.Translucent.NoTitleBar" android:launchMode="singleInstance"> 
+        </activity>
+	</application>
+	<uses-sdk android:minSdkVersion="4" />
+</manifest> 
