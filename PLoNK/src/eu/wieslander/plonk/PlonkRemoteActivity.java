@@ -69,14 +69,14 @@ public class PlonkRemoteActivity extends Activity {
         findViewById(R.id.UpButton).setOnClickListener(new ButtonListener(0xA8, "U"));
         findViewById(R.id.SourceButton).setOnClickListener(new ButtonListener(0xD0, "O"));
         findViewById(R.id.LeftButton).setOnClickListener(new ButtonListener(0xAA, "L"));
-        findViewById(R.id.OkButton).setOnClickListener(new ButtonListener("13\n", "\n")); // TODO: Test/verify
+        findViewById(R.id.OkButton).setOnClickListener(new ButtonListener(0x0D, "\n")); // TODO: Test
         findViewById(R.id.RightButton).setOnClickListener(new ButtonListener(0xAB, "R"));
         findViewById(R.id.InfoButton).setOnClickListener(new ButtonListener(0x95, "i"));
         findViewById(R.id.DownButton).setOnClickListener(new ButtonListener(0xA9, "D"));
         findViewById(R.id.BackButton).setOnClickListener(new ButtonListener(0x8D, "v"));
         findViewById(R.id.PlayButton).setOnClickListener(new ButtonListener(0xE9, "y"));
         findViewById(R.id.PauseButton).setOnClickListener(new ButtonListener(0xEA, "p"));
-        findViewById(R.id.StopButton).setOnClickListener(new ButtonListener(212, "s")); // TODO: hex
+        findViewById(R.id.StopButton).setOnClickListener(new ButtonListener(0x1B, "s")); // TODO: test
     }
 /*   Defining all buttons....
      A100
@@ -204,17 +204,8 @@ N=Angle a=Audio b=Subtitle z=Zoom
             this.command200Series = command200Series;
         }
 
-        private ButtonListener(String command100Series, String command200Series) {
-            this.command100Series = command100Series;
-            this.command200Series = command200Series;
-        }
-
         public void onClick(View view) {
-            if (a100) {
-                sendCommand(toCode(command100Series));
-            } else {
-                sendCommand(command200Series);
-            }
+            sendCommand(a100 ? command100Series : command200Series);
         }
     }
 }
