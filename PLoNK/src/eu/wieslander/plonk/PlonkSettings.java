@@ -43,7 +43,42 @@ public class PlonkSettings extends Activity {
 		// Get stored ip's
 		updateResults(pchIpInput, llinkIpInput, checkBoxA, checkBoxC);
 		
-		
+		checkBoxA.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                if (checkBoxA.isChecked()) {
+                    checkBoxA.setChecked(true);
+                    checkBoxC.setChecked(false);
+                    SharedPreferences.Editor editor = plonkIpPreferences.edit();
+                    editor.putString(PCH_VERSION_PREF, getString(R.string.pch_A100_version));
+                    editor.commit();
+                }else{
+                    checkBoxA.setChecked(false);
+                    checkBoxC.setChecked(true);
+                    SharedPreferences.Editor editor = plonkIpPreferences.edit();
+                    editor.putString(PCH_VERSION_PREF, getString(R.string.pch_C200_version));
+                    editor.commit();
+                }
+            }
+        });
+        checkBoxC.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                final CheckBox checkBoxA = (CheckBox) findViewById(R.id.CheckBoxA100);
+                final CheckBox checkBoxC = (CheckBox) findViewById(R.id.CheckBoxC200);
+                if (checkBoxC.isChecked()) {
+                    checkBoxA.setChecked(false);
+                    checkBoxC.setChecked(true);
+                    SharedPreferences.Editor editor = plonkIpPreferences.edit();
+                    editor.putString(PCH_VERSION_PREF, getString(R.string.pch_C200_version));
+                    editor.commit();
+                }else{
+                    checkBoxA.setChecked(true);
+                    checkBoxC.setChecked(false);
+                    SharedPreferences.Editor editor = plonkIpPreferences.edit();
+                    editor.putString(PCH_VERSION_PREF, getString(R.string.pch_A100_version));
+                    editor.commit();
+                }   
+            }
+        });
 	
 		// Handle button-click
 		// Check out http://developer.android.com/guide/topics/data/data-storage.html
@@ -120,41 +155,6 @@ public class PlonkSettings extends Activity {
                 editor.commit();
             }   
     }*/
-	
-    public void myCheckBoxAhandler(View target){
-        final CheckBox checkBoxA = (CheckBox) findViewById(R.id.CheckBoxA100);
-        final CheckBox checkBoxC = (CheckBox) findViewById(R.id.CheckBoxC200);
-        if (checkBoxA.isChecked()) {
-            checkBoxA.setChecked(true);
-            checkBoxC.setChecked(false);
-            SharedPreferences.Editor editor = plonkIpPreferences.edit();
-            editor.putString(PCH_VERSION_PREF, getString(R.string.pch_A100_version));
-            editor.commit();
-        }else{
-            checkBoxA.setChecked(false);
-            checkBoxC.setChecked(true);
-            SharedPreferences.Editor editor = plonkIpPreferences.edit();
-            editor.putString(PCH_VERSION_PREF, getString(R.string.pch_C200_version));
-            editor.commit();
-        }
-    }
-    public void myCheckBoxChandler(View target){
-            final CheckBox checkBoxA = (CheckBox) findViewById(R.id.CheckBoxA100);
-            final CheckBox checkBoxC = (CheckBox) findViewById(R.id.CheckBoxC200);
-            if (checkBoxC.isChecked()) {
-                checkBoxA.setChecked(false);
-                checkBoxC.setChecked(true);
-                SharedPreferences.Editor editor = plonkIpPreferences.edit();
-                editor.putString(PCH_VERSION_PREF, getString(R.string.pch_C200_version));
-                editor.commit();
-            }else{
-                checkBoxA.setChecked(true);
-                checkBoxC.setChecked(false);
-                SharedPreferences.Editor editor = plonkIpPreferences.edit();
-                editor.putString(PCH_VERSION_PREF, getString(R.string.pch_A100_version));
-                editor.commit();
-            }   
-    }
 	
     /**
      * Gets the stored results from the shared preferences

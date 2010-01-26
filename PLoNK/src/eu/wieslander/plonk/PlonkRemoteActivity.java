@@ -1,15 +1,13 @@
 package eu.wieslander.plonk;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -24,12 +22,10 @@ public class PlonkRemoteActivity extends Activity {
 
     //private final String ipAddress = "192.168.0.11";  // ip of server pc.
     //private final int port = 30000;
-    EditText mKey;
-    Button mConfirm;
-    Socket kkSocket = null;
-    PrintWriter out = null;
-    BufferedReader in = null;
+
     Boolean a100;
+    
+    static final String TAG = "PLoNK";
     
 	public static final String MYPREFS = "plonkIpPreferences";
 
@@ -42,16 +38,14 @@ public class PlonkRemoteActivity extends Activity {
 	
 	public static int PCH_PORT_COMMAND = 30000;
 	public static int PCH_PORT_PEACH_IR = 30002;
-	
-	private SharedPreferences plonkIpPreferences;
-	
+
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
         // Be sure to call the super class.
         super.onCreate(savedInstanceState);
         
 		// Get preferences
-		plonkIpPreferences = getSharedPreferences(MYPREFS, Activity.MODE_PRIVATE);
+        SharedPreferences plonkIpPreferences = getSharedPreferences(MYPREFS, Activity.MODE_PRIVATE);
 		
 		PCH_IP = plonkIpPreferences.getString(PCH_IP_PREF, getString(R.string.add_pch_ip_hint));
         PCH_VERSION = plonkIpPreferences.getString(PCH_VERSION_PREF, getString(R.string.pch_default_version));
@@ -64,8 +58,25 @@ public class PlonkRemoteActivity extends Activity {
 			//TODO fix this
 			PCH_PORT_COMMAND = 30000;
 		}
+        Log.d(TAG, "PCH IP: " + PCH_IP);
+        Log.d(TAG, "PCH VERSION: " + PCH_VERSION);
+        Log.d(TAG, "PCH port: " + PCH_PORT_COMMAND);
+        Log.d(TAG, "a100? " + a100);
+        
         setContentView(R.layout.plonk_remote);
         
+        findViewById(R.id.MenuButton).setOnClickListener(new ButtonListener(0xDD, "B"));
+        findViewById(R.id.UpButton).setOnClickListener(new ButtonListener(0xA8, "U"));
+        findViewById(R.id.SourceButton).setOnClickListener(new ButtonListener(0xD0, "O"));
+        findViewById(R.id.LeftButton).setOnClickListener(new ButtonListener(0xAA, "L"));
+        findViewById(R.id.OkButton).setOnClickListener(new ButtonListener("13\n", "\n")); // TODO: Test/verify
+        findViewById(R.id.RightButton).setOnClickListener(new ButtonListener(0xAB, "R"));
+        findViewById(R.id.InfoButton).setOnClickListener(new ButtonListener(0x95, "i"));
+        findViewById(R.id.DownButton).setOnClickListener(new ButtonListener(0xA9, "D"));
+        findViewById(R.id.BackButton).setOnClickListener(new ButtonListener(0x8D, "v"));
+        findViewById(R.id.PlayButton).setOnClickListener(new ButtonListener(0xE9, "y"));
+        findViewById(R.id.PauseButton).setOnClickListener(new ButtonListener(0xEA, "p"));
+        findViewById(R.id.StopButton).setOnClickListener(new ButtonListener(212, "s")); // TODO: hex
     }
 /*   Defining all buttons....
      A100
@@ -115,94 +126,11 @@ t=Title r=Repeat d=Slow
 N=Angle a=Audio b=Subtitle z=Zoom
      * 
      */
-    public void mySourceButtonHandler(View target){
-    	if (a100) {
-    		sendCommand(toCode("DD"));
-		} else {
-			sendCommand("B");
-		}
-    }
     
-    public void myUpButtonHandler(View target){
-    	if (a100) {
-    		sendCommand(toCode("A8"));
-		} else {
-			sendCommand("U");
-		}
-    }
-    public void myHomeButtonHandler(View target){
-    	if (a100) {
-    		sendCommand(toCode("D0"));
-		} else {
-			sendCommand("O");
-		}
-    }
-    public void myLeftButtonHandler(View target){
-    	if (a100) {
-    		sendCommand(toCode("AA"));
-		} else {
-			sendCommand("L");
-		}
-    }
-    public void myOkButtonHandler(View target){
-    	if (a100) {
-    		sendCommand("13\n");
-		} else {
-			sendCommand("\n");
-		}
-    }
-    public void myRightButtonHandler(View target){
-    	if (a100) {
-    		sendCommand(toCode("AB"));
-		} else {
-			sendCommand("R");
-		}
-    }
-    public void myInfoButtonHandler(View target){
-    	if (a100) {
-    		sendCommand(toCode("95"));
-		} else {
-			sendCommand("i");
-		}
-    }
-    public void myDownButtonHandler(View target){
-    	if (a100) {
-    		sendCommand(toCode("A9"));
-		} else {
-			sendCommand("D");
-		}
-    }
-    public void myBackButtonHandler(View target){
-    	if (a100) {
-    		sendCommand(toCode("8D"));
-		} else {
-			sendCommand("v");
-		}
-    }
-    public void myPlayButtonHandler(View target){
-    	if (a100) {
-    		sendCommand(toCode("E9"));
-		} else {
-			sendCommand("y");
-		}
-    }
-    public void myPauseButtonHandler(View target){
-    	if (a100) {
-    		sendCommand(toCode("EA"));
-		} else {
-			sendCommand("p");
-		}
-    }
-	public void myStopButtonHandler(View target){
-    	if (a100) {
-    		sendCommand("212");
-		} else {
-			sendCommand("s");
-		}
-    }
     //End of buttons
 	
     private void errorMessage(String msg) {
+        Log.e(TAG, msg);
         // this.showAlert("Error!", msg, "OK", true);
 		    //We show a short alert.
 		    Toast.makeText(PlonkRemoteActivity.this, msg,
@@ -218,25 +146,29 @@ N=Angle a=Audio b=Subtitle z=Zoom
     
     //Call sendCommand to send commands to the PCH
     public void sendCommand(String command) {
-        
+        Log.d(TAG, "Sending command '" + command + "'");
         try {
-            //more test
-      	  if (kkSocket != null) {
-                //if (kkSocket. isConnected())
-                     kkSocket.close();
-           }
       	  //testing creating socket later
-      	  kkSocket = new Socket(PCH_IP, PCH_PORT_COMMAND);
+          Log.v(TAG, "Opening socket to " + PCH_IP + ":" + PCH_PORT_COMMAND);
+      	  Socket kkSocket = new Socket(PCH_IP, PCH_PORT_COMMAND); // TODO: Close in finally block
       	   // 
-             out = new PrintWriter(kkSocket.getOutputStream(), false);
-             out.print(command);
+             Log.v(TAG, "Writing command to socket"); 
+             PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), false);
+             if(a100)
+                out.println(command);
+             else
+                out.print(command); // TODO: Confirm no newline for C-200
              out.flush();
+             out.close();
              //testing closing socket
              kkSocket.close();
+            Log.v(TAG, "Done sending command");
              
         } catch (UnknownHostException e) {
+             Log.d(TAG, "Error sending", e);
              errorMessage("Unknown host" + PCH_IP);
         } catch (IOException e) {
+             android.util.Log.d(TAG, "Error sending", e);
              errorMessage("Couldn't get I/O for the connection to: " + PCH_IP);
 
         }
@@ -247,44 +179,42 @@ N=Angle a=Audio b=Subtitle z=Zoom
          // TODO Auto-generated method stub
          super.onPause();
 
-         try {
-              kkSocket.close();
-         } catch (IOException e) {
-              errorMessage("Couldn't close I/O for the connection to: " + PCH_IP);
-         }
 
     }
 
     @Override
     protected void onResume() {
          super.onResume();
-         try {
-              //testar lite mera
-             if (kkSocket != null) {
-                      kkSocket.close();
-            }
-       	  //
-       	   //kkSocket = new Socket(ipAddress, port);
-         //} catch (UnknownHostException e) {
-          //    errorMessage("Unknown host " + ipAddress);
-         } catch (IOException e) {
-              errorMessage("Couldn't get I/O for the connection to: " + PCH_IP);
-         }
     }
 
     @Override
     protected void onStop() {
 
          super.onStop();
-         try {
-              if (kkSocket != null) {
-                   //if (kkSocket. isConnected())
-                        kkSocket.close();
-              }
-         } catch (IOException e) {
-              errorMessage("Couldn't close I/O for the connection to: " + PCH_IP);
-
-         }
     }
    
+    private class ButtonListener implements View.OnClickListener {
+        
+        private final String command100Series;
+        
+        private final String command200Series;
+
+        private ButtonListener(int command100Series, String command200Series) {
+            this.command100Series = Integer.toString(command100Series);
+            this.command200Series = command200Series;
+        }
+
+        private ButtonListener(String command100Series, String command200Series) {
+            this.command100Series = command100Series;
+            this.command200Series = command200Series;
+        }
+
+        public void onClick(View view) {
+            if (a100) {
+                sendCommand(toCode(command100Series));
+            } else {
+                sendCommand(command200Series);
+            }
+        }
+    }
 }
