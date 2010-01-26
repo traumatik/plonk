@@ -29,6 +29,6 @@
 			android:layout_height="wrap_content" android:layout_width="wrap_content" />
 	</LinearLayout>
 	
-<CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/CheckBoxA100" android:onClick="myCheckBoxAhandler" android:text="@string/checkBoxA100"></CheckBox>
-<CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/CheckBoxC200" android:text="@string/checkBoxC200" android:onClick="myCheckBoxChandler"></CheckBox>
+<CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/CheckBoxA100" android:text="@string/checkBoxA100"></CheckBox>
+<CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/CheckBoxC200" android:text="@string/checkBoxC200"></CheckBox>
 </LinearLayout>

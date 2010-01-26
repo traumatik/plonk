@@ -9,28 +9,28 @@
 		
 		
 		
-	<LinearLayout android:id="@+id/LinearLayout04" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/MenuButton" android:src="@drawable/earth" android:layout_gravity="center_horizontal" android:onClick="mySourceButtonHandler"/>
+	<LinearLayout android:id="@+id/LinearLayout04" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/MenuButton" android:src="@drawable/earth" android:layout_gravity="center_horizontal" />
 </LinearLayout>
-<LinearLayout android:id="@+id/LinearLayout05" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/UpButton" android:text="U" android:onClick="myUpButtonHandler" android:layout_gravity="center_horizontal" android:src="@drawable/object_08" /></LinearLayout>
-<LinearLayout android:id="@+id/LinearLayout06" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/SourceButton" android:layout_gravity="right" android:src="@drawable/home" android:onClick="myHomeButtonHandler"/></LinearLayout>
+<LinearLayout android:id="@+id/LinearLayout05" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/UpButton" android:text="U" android:layout_gravity="center_horizontal" android:src="@drawable/object_08" /></LinearLayout>
+<LinearLayout android:id="@+id/LinearLayout06" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/SourceButton" android:layout_gravity="right" android:src="@drawable/home" /></LinearLayout>
 </LinearLayout>
 
 	<LinearLayout android:layout_height="wrap_content" android:id="@+id/LinearLayoutMid" android:layout_weight="1" android:layout_width="fill_parent" android:gravity="center_vertical|center_horizontal">
 		
 		
 		
-	<LinearLayout android:id="@+id/LinearLayout07" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_width="fill_parent" android:layout_weight="1"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/LeftButton" android:onClick="myLeftButtonHandler" android:text="L" android:src="@drawable/object_06" /></LinearLayout>
-<LinearLayout android:id="@+id/LinearLayout08" android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center_horizontal" android:layout_weight="1"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ok" android:onClick="myOkButtonHandler" android:id="@+id/OkButton" android:src="@drawable/ok" /></LinearLayout>
-<LinearLayout android:id="@+id/LinearLayout09" android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center_horizontal" android:layout_weight="1"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/RightButton" android:text="R" android:onClick="myRightButtonHandler" android:src="@drawable/object_07" /></LinearLayout>
+	<LinearLayout android:id="@+id/LinearLayout07" android:layout_height="wrap_content" android:gravity="center_horizontal" android:layout_width="fill_parent" android:layout_weight="1"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/LeftButton" android:text="L" android:src="@drawable/object_06" /></LinearLayout>
+<LinearLayout android:id="@+id/LinearLayout08" android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center_horizontal" android:layout_weight="1"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ok" android:id="@+id/OkButton" android:src="@drawable/ok" /></LinearLayout>
+<LinearLayout android:id="@+id/LinearLayout09" android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center_horizontal" android:layout_weight="1"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/RightButton" android:text="R" android:src="@drawable/object_07" /></LinearLayout>
 </LinearLayout>
 
 	<LinearLayout android:layout_height="wrap_content" android:id="@+id/LinearLayoutBottom" android:layout_width="fill_parent" android:layout_weight="1" android:gravity="center_vertical|center_horizontal">
 		
 		
 		
-	<LinearLayout android:id="@+id/LinearLayout01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/InfoButton" android:onClick="myInfoButtonHandler" android:src="@drawable/about" /></LinearLayout>
-<LinearLayout android:id="@+id/LinearLayout02" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/DownButton" android:onClick="myDownButtonHandler" android:text="D" android:src="@drawable/object_09" /></LinearLayout>
-<LinearLayout android:id="@+id/LinearLayout03" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/BackButton" android:onClick="myBackButtonHandler" android:src="@drawable/object_05"/></LinearLayout>
+	<LinearLayout android:id="@+id/LinearLayout01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/InfoButton" android:src="@drawable/about" /></LinearLayout>
+<LinearLayout android:id="@+id/LinearLayout02" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/DownButton" android:text="D" android:src="@drawable/object_09" /></LinearLayout>
+<LinearLayout android:id="@+id/LinearLayout03" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/BackButton" android:src="@drawable/object_05"/></LinearLayout>
 </LinearLayout>
 
 	<LinearLayout android:layout_height="wrap_content"
@@ -38,9 +38,9 @@
 		
 		
 		
-	<LinearLayout android:id="@+id/LinearLayout10" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:onClick="myPlayButtonHandler" android:id="@+id/PlayButton" android:src="@drawable/forward" /></LinearLayout>
-<LinearLayout android:id="@+id/LinearLayout11" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:onClick="myPauseButtonHandler" android:id="@+id/PauseButton" android:src="@drawable/pause" /></LinearLayout>
-<LinearLayout android:id="@+id/LinearLayout12" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/StopButton" android:onClick="myStopButtonHandler" android:src="@drawable/stop" /></LinearLayout>
+	<LinearLayout android:id="@+id/LinearLayout10" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/PlayButton" android:src="@drawable/forward" /></LinearLayout>
+<LinearLayout android:id="@+id/LinearLayout11" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/PauseButton" android:src="@drawable/pause" /></LinearLayout>
+<LinearLayout android:id="@+id/LinearLayout12" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_weight="1" android:gravity="center_horizontal"><ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/StopButton" android:src="@drawable/stop" /></LinearLayout>
 </LinearLayout>
 
 </LinearLayout>
