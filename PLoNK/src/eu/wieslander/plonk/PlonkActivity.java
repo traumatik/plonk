@@ -11,13 +11,9 @@ import java.util.List;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.xml.sax.Attributes;
@@ -25,19 +21,15 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 
 import android.os.Bundle;
 import android.os.Handler;
 
-import android.text.util.Linkify;
 import android.util.Log;
 import android.util.Xml;
 
@@ -54,13 +46,11 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TwoLineListItem;
-import android.widget.AdapterView.OnItemLongClickListener;
 
 
 public class PlonkActivity extends ListActivity {
@@ -70,11 +60,6 @@ public class PlonkActivity extends ListActivity {
      */
     private PlonkListAdapter mAdapter;
     
-    /**
-     * Url edit text field.
-     */
-    private EditText mUrlText;
-
     /**
      * Status text field.
      */
@@ -103,40 +88,14 @@ public class PlonkActivity extends ListActivity {
     // Take this many chars from the front of the description.
     public static final int SNIPPET_LENGTH = 90;
     
-    
-    // Keys used for data in the onSaveInstanceState() Map.
-    public static final String STRINGS_KEY = "strings";
-
-    public static final String SELECTION_KEY = "selection";
-
-    public static final String URL_KEY = "url";
-    
-    public static final String STATUS_KEY = "status";
-    
     //Keys for menu items
     private static final int SHOW_SETTINGS = Menu.FIRST;
     private static final int SHOW_REMOTE = Menu.FIRST+1;
     
-    // name of shared_prefs file
-    public static final String MYPREFS = "plonkIpPreferences";
-    // name of the llink key in plonkIpPreferences
-    private static final String LLINK_IP_PREF = "Llink_Ip";
-    // name of the pch key in plonkIpPreferences
-    private static final String PCH_IP_PREF = "Pch_Ip";
-    // name of the pch-version key in plonkIpPreferences
-    private static final String PCH_VERSION_PREF = "Pch_Version";
+    PlonkCfg cfg;
     
-    public static String LLINK_IP = "0.0.0.0";
-    public static String LLINK_PORT = "8009";
-    public static String PCH_IP = "0.0.0.0";
-    public static int PCH_PORT_COMMAND = 30000;
-    public static int PCH_PORT__PEACH_GAYA = 30001;
-    public static int PCH_PORT_PEACH_IR = 30002;
-    public static String PCH_VERSION = "";
-
     // Constants for different dialogs
 	private static final int FOLDER_VIEW = 1;
-	private static final int FILE_VIEW = 2;
 
     
 	// Parent and Current directory name holder string
@@ -192,14 +151,10 @@ public class PlonkActivity extends ListActivity {
             //public void onClick(View v) {
         // Run the doPlonk method with the ip for llink
         
-        // Get preferences
-		SharedPreferences plonkIpPreferences = getSharedPreferences(MYPREFS, Activity.MODE_PRIVATE);
-		LLINK_IP = plonkIpPreferences.getString(LLINK_IP_PREF, getString(R.string.add_llink_ip_hint));
-		PCH_IP = plonkIpPreferences.getString(PCH_IP_PREF, getString(R.string.add_pch_ip_hint));
-		PCH_VERSION = plonkIpPreferences.getString(PCH_VERSION_PREF, getString(R.string.pch_default_version));
-
+        cfg = PlonkCfg.getConfig(this); // Get preferences
+        
         //TODO add a check if no preferences, then dont doPlonk 
-		doPlonk("http://" + plonkIpPreferences.getString(LLINK_IP_PREF, getString(R.string.add_llink_ip_hint)));
+		doPlonk("http://" + cfg.getLlinkIp());
 		//doPlonk("http://feeds.idg.se/idg/JYvw?format=xml");
             //}
         //});
@@ -249,7 +204,7 @@ public class PlonkActivity extends ListActivity {
             // the description look better, we strip out the
             // tags and take just the first SNIPPET_LENGTH chars.
             view.getText1().setText(item.getTitle());
-            String descr = new String();
+            String descr;
             
             // We have to make sure when description is missing we don't screw things up
             // and gets NullPointException
@@ -442,14 +397,13 @@ public class PlonkActivity extends ListActivity {
                 // "http://" + plonkIpPreferences.getString(LLINK_IP_PREF, getString(R.string.add_llink_ip_hint))
                 
                 // Get preferences
-        		SharedPreferences plonkIpPreferences = getSharedPreferences(MYPREFS, Activity.MODE_PRIVATE);
-        		PCH_VERSION = plonkIpPreferences.getString(PCH_VERSION_PREF, getString(R.string.pch_default_version));
+                // TODO: Do we need to reload preferences here???
         		
                 // http://PCH_IP:8883/plonk_nmt.cgi?act=play&url=http://llink_ip:8001/The.Nice.movie.avi
               
-                HttpGet httpget = new HttpGet("http://" + plonkIpPreferences.getString(PCH_IP_PREF, getString(R.string.add_pch_ip_hint)) +
+                HttpGet httpget = new HttpGet("http://" + cfg.getPchIp() +
                 		//":8883/plonk_nmt.cgi?act=" + mCommand + "&url=" + mLink);
-                		":9999/PLoNK_web/plonk_nmt.php?act=" + mCommand + "&device=" + PCH_VERSION + "&url=" + mLink);
+                		":9999/PLoNK_web/plonk_nmt.php?act=" + mCommand + "&device=" + cfg.getPchVersion() + "&url=" + mLink);
                 Log.i("#htpgetet", httpget.getRequestLine().toString());
                 HttpResponse response = httpclient.execute(httpget);
                 HttpEntity entity = response.getEntity();
@@ -464,7 +418,7 @@ public class PlonkActivity extends ListActivity {
                     //inputStreamTo String http://snippets.dzone.com/posts/show/555
                     BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
                     StringBuilder sb = new StringBuilder();
-                    String line = null;
+                    String line;
 
                     while ((line = br.readLine()) != null) {
                     sb.append(line);
@@ -541,7 +495,7 @@ public class PlonkActivity extends ListActivity {
     /**
      * Given an Plonk url string, starts the Plonk-download-thread going.
      * 
-     * @param PlonkUrl
+     * @param plonkUrl
      */
     private void doPlonk(CharSequence plonkUrl) {
         PlonkWorker worker = new PlonkWorker(plonkUrl);
@@ -607,7 +561,7 @@ public class PlonkActivity extends ListActivity {
 
         @Override
         public void run() {
-            String status = "";
+            String status;
             try {
                 // Standard code to make an HTTP connection.
                 URL url = new URL(mUrl.toString());
@@ -883,8 +837,6 @@ public class PlonkActivity extends ListActivity {
         private PlonkItem item;
         //private boolean imgStatus;
         
-        StringBuilder mBuff;
-        
         boolean mInItem;
         boolean mInChannel;
         
@@ -1023,7 +975,7 @@ public class PlonkActivity extends ListActivity {
     }
     
     public void parsePlonk(InputStream in, PlonkListAdapter adapter) throws IOException, ParserConfigurationException, SAXException, FactoryConfigurationError {
-        SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+        // SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
         DefaultHandler handler = new PlonkHandler(adapter);
         //this fixes the encoding problem, dont know why 
         Log.i("XML PARSING", "#########");
@@ -1073,11 +1025,12 @@ public class PlonkActivity extends ListActivity {
 	
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            SharedPreferences plonkIpPreferences = getSharedPreferences(MYPREFS, Activity.MODE_PRIVATE);
+            // TODO: Any need to reload prefs here???
+
             //doPlonk("http://" + plonkIpPreferences.getString(LLINK_IP_PREF, getString(R.string.add_llink_ip_hint)));
             //Uggly hack to get the parent dir
             Log.i("######Link Parent###", PARENT_DIR);
-            String link = ("http://" + plonkIpPreferences.getString(LLINK_IP_PREF, getString(R.string.add_llink_ip_hint)) + PARENT_DIR);
+            String link = ("http://" + cfg.getLlinkIp() + PARENT_DIR);
             Log.i("######Link###", link);
             doPlonk(link);
             return true;
