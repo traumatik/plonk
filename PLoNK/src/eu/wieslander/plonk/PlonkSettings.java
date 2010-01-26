@@ -3,7 +3,6 @@ package eu.wieslander.plonk;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -15,25 +14,17 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class PlonkSettings extends Activity {
-
-	// name of shared_prefs file
-	public static final String MYPREFS = "plonkIpPreferences";
-
-	private static final String PCH_IP_PREF = "Pch_Ip";
-	private static final String LLINK_IP_PREF = "Llink_Ip";
-	private static final String PCH_VERSION_PREF = "Pch_Version";
-
-	private SharedPreferences plonkIpPreferences;
-	
+    
+    private PlonkCfg cfg;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.plonk_settings);
 
-		// Get preferences
-		plonkIpPreferences = getSharedPreferences(MYPREFS, Activity.MODE_PRIVATE);
-		
-		//Declare BUttons and text view's
+		cfg = PlonkCfg.getConfig(this);
+        
+        //Declare BUttons and text view's
 		Button pchIpSaveButton = (Button) findViewById(R.id.pchIpSaveButton);
 		Button llinkIpSaveButton = (Button) findViewById(R.id.llinkIpSaveButton);
 		final EditText pchIpInput = (EditText) findViewById(R.id.pchIpInput);
@@ -48,16 +39,13 @@ public class PlonkSettings extends Activity {
                 if (checkBoxA.isChecked()) {
                     checkBoxA.setChecked(true);
                     checkBoxC.setChecked(false);
-                    SharedPreferences.Editor editor = plonkIpPreferences.edit();
-                    editor.putString(PCH_VERSION_PREF, getString(R.string.pch_A100_version));
-                    editor.commit();
+                    cfg.setPchVersion(PlonkCfg.VERSION_A100);
                 }else{
                     checkBoxA.setChecked(false);
                     checkBoxC.setChecked(true);
-                    SharedPreferences.Editor editor = plonkIpPreferences.edit();
-                    editor.putString(PCH_VERSION_PREF, getString(R.string.pch_C200_version));
-                    editor.commit();
+                    cfg.setPchVersion(PlonkCfg.VERSION_C200);
                 }
+                cfg.store(PlonkSettings.this);
             }
         });
         checkBoxC.setOnClickListener(new OnClickListener() {
@@ -67,16 +55,13 @@ public class PlonkSettings extends Activity {
                 if (checkBoxC.isChecked()) {
                     checkBoxA.setChecked(false);
                     checkBoxC.setChecked(true);
-                    SharedPreferences.Editor editor = plonkIpPreferences.edit();
-                    editor.putString(PCH_VERSION_PREF, getString(R.string.pch_C200_version));
-                    editor.commit();
+                    cfg.setPchVersion(PlonkCfg.VERSION_C200);
                 }else{
                     checkBoxA.setChecked(true);
                     checkBoxC.setChecked(false);
-                    SharedPreferences.Editor editor = plonkIpPreferences.edit();
-                    editor.putString(PCH_VERSION_PREF, getString(R.string.pch_A100_version));
-                    editor.commit();
-                }   
+                    cfg.setPchVersion(PlonkCfg.VERSION_A100);
+                }
+                cfg.store(PlonkSettings.this);
             }
         });
 	
@@ -86,9 +71,8 @@ public class PlonkSettings extends Activity {
 			public void onClick(View view) {
 				String newUrl = pchIpInput.getText().toString();
 				if (newUrl.length() > 0 && newUrl.matches("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)")) {
-					SharedPreferences.Editor editor = plonkIpPreferences.edit();
-					editor.putString(PCH_IP_PREF, newUrl);
-				    editor.commit();
+                    cfg.setPchIp(newUrl);
+                    cfg.store(PlonkSettings.this);
 				    pchIpInput.setText(newUrl);
 					showToast();			    
 				}else{
@@ -106,9 +90,8 @@ public class PlonkSettings extends Activity {
 			public void onClick(View view) {
 				String newUrl = llinkIpInput.getText().toString();
 				if (newUrl.length() > 0 && newUrl.matches("^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):(6553[0-5]|655[0-2][0-9]|65[0-4][0-9][0-9]|6[0-4][0-9][0-9][0-9]|[1-5][0-9][0-9][0-9][0-9]|[1-9][0-9]?[0-9]?[0-9]?|0)")) {
-					SharedPreferences.Editor editor = plonkIpPreferences.edit();
-					editor.putString(LLINK_IP_PREF, newUrl);
-				    editor.commit();
+                    cfg.setLlinkIp(newUrl);
+                    cfg.store(PlonkSettings.this);
 				    llinkIpInput.setText(newUrl);
                     showToast();
 				}else{
@@ -128,7 +111,7 @@ public class PlonkSettings extends Activity {
             checkBoxA.setChecked(false);
             checkBoxC.setChecked(true);
             SharedPreferences.Editor editor = plonkIpPreferences.edit();
-            editor.putString(PCH_VERSION, getString(R.string.pch_C200_version));
+            editor.putString(PCH_VERSION, eu.wieslander.plonk.PlonkCfg.VERSION_C200);
             editor.commit();
         }else if (!checkBoxA.isChecked()){
             checkBoxA.setChecked(true);
@@ -151,31 +134,21 @@ public class PlonkSettings extends Activity {
                 checkBoxA.setChecked(false);
                 checkBoxC.setChecked(true);
                 SharedPreferences.Editor editor = plonkIpPreferences.edit();
-                editor.putString(PCH_VERSION, getString(R.string.pch_C200_version));
+                editor.putString(PCH_VERSION, eu.wieslander.plonk.PlonkCfg.VERSION_C200);
                 editor.commit();
             }   
     }*/
 	
     /**
      * Gets the stored results from the shared preferences
-     * @param add_pch_ip_result
-     * @param add_llink_ip_result
      */
 	private void updateResults(EditText pchIpInput,
 			EditText llinkIpInput, CheckBox checkBoxA, CheckBox checkBoxC) {
-		String pch_ip = plonkIpPreferences.getString(PCH_IP_PREF, getString(R.string.add_pch_ip_hint));
-		pchIpInput.setText(pch_ip);
-		String llink_ip = plonkIpPreferences.getString(LLINK_IP_PREF, getString(R.string.add_llink_ip_hint));
-		llinkIpInput.setText(llink_ip);
-        String pch_version = plonkIpPreferences.getString(PCH_VERSION_PREF, getString(R.string.pch_default_version));
-        String a100 = getString(R.string.pch_A100_version);
-        if (pch_version.compareTo(a100) == 0) {
-            checkBoxA.setChecked(true);
-            checkBoxC.setChecked(false);
-        }else {
-            checkBoxA.setChecked(false);
-            checkBoxC.setChecked(true);
-        }
+        PlonkCfg cfg = PlonkCfg.getConfig(this); // Re-read
+		pchIpInput.setText(cfg.getPchIp());
+		llinkIpInput.setText(cfg.getLlinkIp());
+        checkBoxA.setChecked(cfg.isA100());
+        checkBoxC.setChecked(! cfg.isA100());
 	}
 	/**
 	 * Displays a toast with the android robot and settings saved message
