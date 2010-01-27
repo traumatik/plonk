@@ -12,40 +12,24 @@ import android.widget.Toast;
 import android.app.Activity;
 
 public class PlonkRemoteActivity extends Activity {
-    /**
-     * Initialization of the Activity after it is first created.  Must at least
-     * call {@link android.app.Activity#setContentView setContentView()} to
-     * describe what is to be displayed in the screen.
-     */
 
+    /** Logging tag */
+    static final String TAG = "PlonkRemoteActivity";
+
+    /** The configuration */
     private PlonkCfg cfg;
-
-    static final String TAG = "PLoNK";
     
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
-        // Be sure to call the super class.
         super.onCreate(savedInstanceState);
-        
-		cfg = PlonkCfg.getConfig(this); // Get preferences
         
         setContentView(R.layout.plonk_remote);
         
-        // See http://www.networkedmediatank.com/wiki/index.php/Remote_Control_using_Telnet
-        findViewById(R.id.MenuButton).setOnClickListener(new ButtonListener(0xDD, "B"));
-        findViewById(R.id.UpButton).setOnClickListener(new ButtonListener(0xA8, "U"));
-        findViewById(R.id.SourceButton).setOnClickListener(new ButtonListener(0xD0, "O"));
-        findViewById(R.id.LeftButton).setOnClickListener(new ButtonListener(0xAA, "L"));
-        findViewById(R.id.OkButton).setOnClickListener(new ButtonListener(0x0D, "\n"));
-        findViewById(R.id.RightButton).setOnClickListener(new ButtonListener(0xAB, "R"));
-        findViewById(R.id.InfoButton).setOnClickListener(new ButtonListener(0x95, "i"));
-        findViewById(R.id.DownButton).setOnClickListener(new ButtonListener(0xA9, "D"));
-        findViewById(R.id.BackButton).setOnClickListener(new ButtonListener(0x8D, "v"));
-        findViewById(R.id.PlayButton).setOnClickListener(new ButtonListener(0xE9, "y"));
-        findViewById(R.id.PauseButton).setOnClickListener(new ButtonListener(0xEA, "p"));
-        findViewById(R.id.StopButton).setOnClickListener(new ButtonListener(0x1B, "s"));
+        cfg = PlonkCfg.getConfig(this); // Get preferences
+        registerKeys(); // Register listeners for buttons
     }
-/*   Defining all buttons....
+
+/* Defining all buttons for C-200
 
  x=On/Off    j=Eject
 
@@ -75,91 +59,102 @@ N=Angle a=Audio b=Subtitle z=Zoom
      * 
      */
     
-    //End of buttons
-	
+    /**
+     * A-100/A-110: See http://www.networkedmediatank.com/wiki/index.php/Remote_Control_using_Telnet 
+     */
+    private void registerKeys() {
+        registerKey(R.id.MenuButton,   0xDD, 'B');
+        registerKey(R.id.UpButton,     0xA8, 'U');
+        registerKey(R.id.SourceButton, 0xD0, 'O');
+        registerKey(R.id.LeftButton,   0xAA, 'L');
+        registerKey(R.id.OkButton,     0x0D, '\n');
+        registerKey(R.id.RightButton,  0xAB, 'R');
+        registerKey(R.id.InfoButton,   0x95, 'i');
+        registerKey(R.id.DownButton,   0xA9, 'D');
+        registerKey(R.id.BackButton,   0x8D, 'v');
+        registerKey(R.id.PlayButton,   0xE9, 'y');
+        registerKey(R.id.PauseButton,  0xEA, 'p');
+        registerKey(R.id.StopButton,   0x1B, 's');
+    }
+
+    /** Create button listener for a single button */
+    private void registerKey(int id, int a100Command, char c200Command) {
+        findViewById(id).setOnClickListener(new ButtonListener(a100Command, c200Command));
+    }
+
     private void errorMessage(String msg) {
         Log.e(TAG, msg);
         // this.showAlert("Error!", msg, "OK", true);
-		    //We show a short alert.
-		    Toast.makeText(PlonkRemoteActivity.this, msg,
-               Toast.LENGTH_LONG).show();
-        System.err.println("Error:" + msg);
+		//We show a short alert.
+		Toast.makeText(PlonkRemoteActivity.this, msg, Toast.LENGTH_LONG).show();
    }
     
-    //Call sendCommand to send commands to the PCH
-    public void sendCommand(String command) {
+    /** Call this method to send commands to the PCH */
+    public void sendCommand(ButtonListener buttonListener) {
+        final String command = cfg.isA100() ? buttonListener.getCommand100Series() : buttonListener.getCommand200Series();
         Log.d(TAG, "Sending command '" + command + "'");
-        Socket kkSocket = null;
+        Socket socket = null;
         PrintWriter out = null;
         try {
-      	  //testing creating socket later
-          Log.v(TAG, "Opening socket to " + cfg.getPchIp() + ":" + cfg.getPchPort());
-      	  kkSocket = new Socket(cfg.getPchIp(), cfg.getPchPort());
-      	   // 
-             Log.v(TAG, "Writing command to socket"); 
-             out = new PrintWriter(kkSocket.getOutputStream(), false);
-             if(cfg.isA100())
-                out.println(command);
-             else
-                out.print(command); // TODO: Confirm no newline for C-200
-             out.flush();
-             out.close();
-             //testing closing socket
-             kkSocket.close();
+            Log.v(TAG, "Opening socket to " + cfg.getPchIp() + ":" + cfg.getPchPort());
+      	    socket = new Socket(cfg.getPchIp(), cfg.getPchPort());
+            Log.v(TAG, "Writing command to socket"); 
+            out = new PrintWriter(socket.getOutputStream(), false);
+            out.print(command);
+            if(cfg.isA100())  // TODO: Confirm no newline for C-200
+               out.println();
+            out.flush();
             Log.v(TAG, "Done sending command");
-             
         } catch (UnknownHostException e) {
-             Log.d(TAG, "Error sending", e);
-             errorMessage("Unknown host" + cfg.getPchIp());
+            Log.e(TAG, "Error connecting", e);
+            errorMessage("Unknown host: " + cfg.getPchIp());
         } catch (IOException e) {
-             android.util.Log.d(TAG, "Error sending", e);
-             errorMessage("Couldn't get I/O for the connection to: " + cfg.getPchIp());
+            Log.e(TAG, "Error sending", e);
+            errorMessage("Couldn't get I/O for the connection to: " + cfg.getPchIp());
         }
         finally {
             if(out != null)
                 out.close();
-            if(kkSocket != null && ! kkSocket.isClosed()) {
+            if(socket != null) {
                 try {
-                    kkSocket.close();
+                    socket.close();
                 } catch (IOException e) {
-                    // Do nothing
+                    Log.e(TAG, "Error closing socket", e);
                 }
             }
         }
 
    }
-    @Override
-    protected void onPause() {
-         // TODO Auto-generated method stub
-         super.onPause();
-
-
-    }
 
     @Override
     protected void onResume() {
-         super.onResume();
+        super.onResume();
+        // Reload prefs, just in case settings have changed
+        cfg = PlonkCfg.getConfig(this); // Get preferences
     }
 
-    @Override
-    protected void onStop() {
-
-         super.onStop();
-    }
-   
+    /** Button listener with commands for 100-series and 200-series */
     private class ButtonListener implements View.OnClickListener {
         
         private final String command100Series;
         
         private final String command200Series;
 
-        private ButtonListener(int command100Series, String command200Series) {
+        private ButtonListener(int command100Series, char command200Series) {
             this.command100Series = Integer.toString(command100Series);
-            this.command200Series = command200Series;
+            this.command200Series = Character.toString(command200Series);
+        }
+
+        public String getCommand100Series() {
+            return command100Series;
+        }
+
+        public String getCommand200Series() {
+            return command200Series;
         }
 
         public void onClick(View view) {
-            sendCommand(cfg.isA100() ? command100Series : command200Series);
+            sendCommand(this);
         }
     }
 }
