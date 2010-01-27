@@ -9,6 +9,7 @@
 <string name="add_pch_ip_header">Set ip number of your PCH</string>
 <string name="add_llink_ip_header">Set ip:port of you llink server</string>
 <string name="add_llink_ip_hint">192.168.0.2:8009</string>
+<string name="invalid_ip">Invalid IP address</string>    
 <string name="button_llink_ip_add">Set</string>
 <string name="settings_saved_toast">Settings Saved!</string>
 <color name="toast_color">#86b600</color>
@@ -17,7 +18,7 @@
 <string name="app_remote">PLoNK Remote Controller</string>
 <string name="PlayButton">Play</string>
 <string name="menu_remote">Remote Controll</string>
-<string name="checkBoxA100">A100</string>
-<string name="checkBoxC200">C200</string>
+<string name="checkBoxA100">A-100/A-110</string>
+<string name="checkBoxC200">C-200</string>
 <string name="cancel">Cancel</string>
 </resources>
