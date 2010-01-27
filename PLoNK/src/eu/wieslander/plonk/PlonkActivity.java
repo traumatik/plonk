@@ -1,16 +1,12 @@
 package eu.wieslander.plonk;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -54,6 +50,10 @@ import android.widget.TwoLineListItem;
 
 
 public class PlonkActivity extends ListActivity {
+    
+    private static final String TAG = "PlonkActivity";
+    
+    private static final String ROOT = "/";
 
     /**
      * Custom list adapter that fits our PLoNK data into the list.
@@ -92,20 +92,18 @@ public class PlonkActivity extends ListActivity {
     private static final int SHOW_SETTINGS = Menu.FIRST;
     private static final int SHOW_REMOTE = Menu.FIRST+1;
     
-    PlonkCfg cfg;
-    
     // Constants for different dialogs
 	private static final int FOLDER_VIEW = 1;
 
     
 	// Parent and Current directory name holder string
-    private static String PARENT_DIR = "";
-    private static String CURRENT_DIR = "";
+    private static String parentDir = "";
+    private static String currentDir = "";
     
     //Progress indicator in title bar
     private boolean mToggleIndeterminate = false;
-    
-	/** Called when the activity is first created. */
+
+    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,7 +149,7 @@ public class PlonkActivity extends ListActivity {
             //public void onClick(View v) {
         // Run the doPlonk method with the ip for llink
         
-        cfg = PlonkCfg.getConfig(this); // Get preferences
+        PlonkCfg cfg = PlonkCfg.getConfig(this); // Get preferences
         
         //TODO add a check if no preferences, then dont doPlonk 
 		doPlonk("http://" + cfg.getLlinkIp());
@@ -257,7 +255,7 @@ public class PlonkActivity extends ListActivity {
     
     
     protected void onLongListItemClick(View v,int pos,long id) {
-    	Log.i( "###", "onLongListItemClick id=" + id + "pos=" + pos);
+    	Log.i(TAG, "onLongListItemClick id=" + id + "pos=" + pos);
     	selectedItem = mAdapter.getItem(pos);
     	showDialog(FOLDER_VIEW);
     	}
@@ -344,7 +342,7 @@ public class PlonkActivity extends ListActivity {
 	
 	protected void sendCommand(CharSequence link, String command) {
 		// TODO Auto-generated method stub
-		Log.i("#PLyCommand", command);
+		Log.i(TAG, "Sending command " + command);
 		PchWorker pWorker = new PchWorker(link, command);
 		setCurrentPchWorker(pWorker);
 		mStatusText.setText("Loading\u2026");
@@ -390,30 +388,27 @@ public class PlonkActivity extends ListActivity {
             	// trunk/httpclient/src/examples/org/apache/http/examples/client/ClientAuthentication.java
                 DefaultHttpClient httpclient = new DefaultHttpClient();
 
-                //httpclient.getCredentialsProvider().setCredentials(
-                        //new AuthScope("localhost", 443),
-                //		new AuthScope(null, -1),
-                //        new UsernamePasswordCredentials("email@mail.com", "1234678"));
                 // "http://" + plonkIpPreferences.getString(LLINK_IP_PREF, getString(R.string.add_llink_ip_hint))
                 
-                // Get preferences
-                // TODO: Do we need to reload preferences here???
+                PlonkCfg cfg = PlonkCfg.getConfig(PlonkActivity.this); // Reload config in case it has changed 
         		
                 // http://PCH_IP:8883/plonk_nmt.cgi?act=play&url=http://llink_ip:8001/The.Nice.movie.avi
               
-                HttpGet httpget = new HttpGet("http://" + cfg.getPchIp() +
-                		//":8883/plonk_nmt.cgi?act=" + mCommand + "&url=" + mLink);
-                		":9999/PLoNK_web/plonk_nmt.php?act=" + mCommand + "&device=" + cfg.getPchVersion() + "&url=" + mLink);
-                Log.i("#htpgetet", httpget.getRequestLine().toString());
+                final String url = "http://" + cfg.getPchIp() +
+                        //":8883/plonk_nmt.cgi?act=" + mCommand + "&url=" + mLink);
+                        ":9999/PLoNK_web/plonk_nmt.php?act=" + mCommand + "&device=" + cfg.getPchVersion() + "&url=" + mLink;
+                Log.d(TAG, "Request play; " + url);
+                HttpGet httpget = new HttpGet(url);
+                // Log.i("#htpgetet", httpget.getRequestLine().toString());
                 HttpResponse response = httpclient.execute(httpget);
                 HttpEntity entity = response.getEntity();
 
-                //System.out.println("----------------------------------------");
-                //System.out.println(response.getStatusLine());
-                Log.i("#responce.getStatusline", response.getStatusLine().toString());
+                final int statusCode = response.getStatusLine().getStatusCode();
+                Log.v(TAG, "Response status " + statusCode);
+                // Log.i("#responce.getStatusline", response.getStatusLine().toString());
                 if (entity != null) {
                     //System.out.println("Response content length: " + entity.getContentLength());
-                    Log.i("#Response content length", ("Response content length: " + entity.getContentLength()));
+                    // Log.i("#Response content length", ("Response content length: " + entity.getContentLength()));
                     
                     //inputStreamTo String http://snippets.dzone.com/posts/show/555
                     BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
@@ -421,15 +416,15 @@ public class PlonkActivity extends ListActivity {
                     String line;
 
                     while ((line = br.readLine()) != null) {
-                    sb.append(line);
+                        sb.append(line);
                     }
 
                     br.close();
                     
-                    Log.i("#Response content Answer", sb.toString());
+                    Log.v(TAG, "Response: " + sb.toString());
                     status = "Command Sent" ;
                 }
-                if (entity != null) {
+                if (entity != null) { // TODO: ???
                     entity.consumeContent();
                 }
 
@@ -437,7 +432,7 @@ public class PlonkActivity extends ListActivity {
                 // shut down the connection manager to ensure
                 // immediate deallocation of all system resources
                 httpclient.getConnectionManager().shutdown();
-                Log.i("#httpclientConMan", "shutdown");
+                // Log.i("#httpclientConMan", "shutdown");
             } catch (Exception e) {
             	status = "failed:" + e.getMessage();
             	//Toast.makeText(noip.this, "failed:" + e.getMessage(),
@@ -564,6 +559,7 @@ public class PlonkActivity extends ListActivity {
             String status;
             try {
                 // Standard code to make an HTTP connection.
+                Log.d(TAG, "Listing dir at " + mUrl);
                 URL url = new URL(mUrl.toString());
                 URLConnection connection = url.openConnection();
                 connection.setConnectTimeout(10000);
@@ -571,8 +567,14 @@ public class PlonkActivity extends ListActivity {
                 connection.connect();
                 InputStream in = connection.getInputStream();
 
-                parsePlonk(in, mAdapter);
-                status = CURRENT_DIR;
+                // SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+                DefaultHandler handler = new PlonkHandler(mAdapter);
+                //this fixes the encoding problem, dont know why 
+                Log.v(TAG, "Calling XML parser");
+                Xml.parse(in, Xml.Encoding.ISO_8859_1, handler);
+                //parser.parse(in, handler);
+                // TODO: does the parser figure out the encoding right on its own?
+                status = currentDir;
             } catch (Exception e) {
                 status = "failed:" + e.getMessage();
             }
@@ -960,12 +962,12 @@ public class PlonkActivity extends ListActivity {
             
             /** Check for the parent dir */
             if (localName.equalsIgnoreCase("parent_dir") && (!mInItem)) {
-               PARENT_DIR = text.toString().trim();
+               parentDir = text.toString().trim();
             }
            
             /** Check for the current dir */
             if (localName.equalsIgnoreCase("curr_dir") && (!mInItem)) {
-                CURRENT_DIR = text.toString().trim();
+                currentDir = text.toString().trim();
             }
             
             text.setLength(0);
@@ -973,24 +975,16 @@ public class PlonkActivity extends ListActivity {
         
 
     }
-    
-    public void parsePlonk(InputStream in, PlonkListAdapter adapter) throws IOException, ParserConfigurationException, SAXException, FactoryConfigurationError {
-        // SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
-        DefaultHandler handler = new PlonkHandler(adapter);
-        //this fixes the encoding problem, dont know why 
-        Log.i("XML PARSING", "#########");
-        Xml.parse(in, Xml.Encoding.ISO_8859_1, handler);
-		//parser.parse(in, handler);
-        // TODO: does the parser figure out the encoding right on its own?
-    } 
-    
-    
+
+
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
 		menu.add(0, SHOW_SETTINGS, Menu.NONE, getString(R.string.menu_settings)).setIcon(android.R.drawable.ic_menu_preferences);
 		menu.add(0, SHOW_REMOTE, Menu.NONE, getString(R.string.menu_remote)).setIcon(android.R.drawable.ic_media_play);
+        // TODO: Add exit menu option menu.add(0, SHOW_REMOTE + 1, Menu.NONE, getString(android.R.string.exit)).setIcon(android.R.drawable.ic_media_play);
+        
 
 		return true;
 	}
@@ -1025,15 +1019,24 @@ public class PlonkActivity extends ListActivity {
 	
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            // TODO: Any need to reload prefs here???
-
-            //doPlonk("http://" + plonkIpPreferences.getString(LLINK_IP_PREF, getString(R.string.add_llink_ip_hint)));
-            //Uggly hack to get the parent dir
-            Log.i("######Link Parent###", PARENT_DIR);
-            String link = ("http://" + cfg.getLlinkIp() + PARENT_DIR);
-            Log.i("######Link###", link);
-            doPlonk(link);
-            return true;
+            
+            if(ROOT.equals(currentDir) && ROOT.equals(parentDir)) {
+                Log.i(TAG, "Back pressed in root, exiting");
+                finish(); // Exit application TODO: Go to main menu?
+                return true;
+            }
+            else {
+                Log.v(TAG, "Back pressed - moving to parent");
+                
+                PlonkCfg cfg = PlonkCfg.getConfig(this); // Reload config in case it has changed 
+    
+                //doPlonk("http://" + plonkIpPreferences.getString(LLINK_IP_PREF, getString(R.string.add_llink_ip_hint)));
+                //Uggly hack to get the parent dir
+                String link = ("http://" + cfg.getLlinkIp() + parentDir);
+                // Log.v(TAG, "Going to " + link);
+                doPlonk(link);
+                return true;
+            }
         }
         return super.onKeyDown(keyCode, event);
     }
