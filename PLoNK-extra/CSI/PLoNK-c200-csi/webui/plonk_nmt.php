@@ -1,7 +1,8 @@
 <?php
-/* 091125
+/* 100213
 *  plonk_nmt.php the NMT server function for
-*  the PLoNK remote control for Android
+*  - the PLoNK remote control for Android
+*  - iSkin: the YAMJ skin for iPhone/iTouch
 *  (C) Johan Wieslander aka PopEYe and Greg Bush aka gfb107 
 * Socket code by networkmediatank.com forum members
 *  dc11ab (original idea)  , November 15, 2009 and Blade November 16, 2009 (allow direct commands and friendly command names)
@@ -10,24 +11,33 @@
 
 $action = $_GET["act"];
 $url = $_GET["url"];
+$cmd = $_GET["cmd"];
+$func = $_GET["func"];
+$tag = $_GET["tag"];
+
+// device-specific code
+include( "device.php" );
+
+// URL loaded after media plays.
 $done = $_GET["done"];
 if ( $done == NULL )
 {
-  "http://127.0.0.1:8883/start.cgi?list";
+  $done = "http://127.0.0.1:8883/start.cgi?list";
 }
-$cmd = $_GET["cmd"];
 
-// for backwards compatibility
-if( $cmd == NULL )
+// play=<url> is equivalent to act=playfile&url=<url>
+$play = $_GET["play"];
+if ( $play != NULL && $play != '' )
 {
-    $cmd = $_GET["acmd"];
+    $action = 'playfile';
+    $url = $play;
 }
 
 // Generic send
 function send($port,$msg)
 {
     // Open the connection
-    $fp = fsockopen ('127.0.0.1', $port, $errno, $errstr, 30);
+    $fp = fsockopen('127.0.0.1', $port, $errno, $errstr, 30);
     if(!$fp)
     {
         echo $errstr;
@@ -39,81 +49,13 @@ function send($port,$msg)
     }
 }
 
-// Send a command to the a100 control port
-function sendCommand($theCmd)
-{
-    send(30000,lookupKey($theCmd));
-}
-
-// Convert friendly command names to command codes
-function lookupKey($theCmd)
-{
-	switch($theCmd)
-    {
-		case 'left':        return 'L';
-		case 'right':	    return 'R';
-		case 'up':		    return 'U';
-		case 'down':	    return 'D';
-		case 'ok':		    return "\n";
-		case 'play':		return 'y';
-		case 'pause':		return 'p';
-		case 'slow':		return 'd';
-		case 'stop':		return 's';
-		case 'rew':			return 'w';
-		case 'fwd':			return 'f';
-		case 'prev':		return 'E';
-		case 'next':		return 'n';
-
-		case 'return':      return 'v';
-		case 'home':		return 'O';
-		case 'info':		return 'i';
-		case 'zoom':		return 'z';
-
-		case 'pageup':	    return '+';
-		case 'pagedown':	return '-';
-		case 'mute':	    return 'u';
-
-		case '0':		    return '0';
-		case '1':		    return '1';
-		case '2':		    return '2';
-		case '3':		    return '3';
-		case '4':		    return '4';
-		case '5':		    return '5';
-		case '6':		    return '6';
-		case '7':		    return '7';
-		case '8':		    return '8';
-		case '9':		    return '9';
-
-		case 'menu':		return 'm';
-		case 'subtitle':	return 'b';
-		case 'audio':		return 'a';
-		case 'setup':		return 'e';
-		case 'source':		return 'B';
-		case 'power':		return 'x';
-		case 'red':			return 'P';
-		case 'green':		return 'G';
-		case 'yellow':		return 'Y';
-		case 'blue':		return 'K';
-		case 'delete':		return 'c';
-		case 'capsnum':		return 'l';
-		case 'timeseek':	return 'H';
-		case 'repeat':		return 'r';
-		case 'angle':       return 'N';
-		case 'tvmode':      return 'T';
-		case 'eject':		return 'j';
-		case 'title':		return 't';
-	}
-    
-    return $theCmd;
-}
-
 //Send url to /tmp/gaya_bc
 function sendPeachGayaCommand($theCmd)
 {
     send(30001, $theCmd);
 }
 
-function lookupTag($url)
+function guessTag($url)
 {
     $low = strtolower($url);
 	switch(end(explode(".", $low)))
@@ -137,7 +79,7 @@ function lookupTag($url)
 
         // Playlists
         case 'jsp':
-            // TODO: need to distinguish between audio and video playlists
+            // TODO: need to distinguish between audio, photo, and video playlists
             return 'vod="playlist"';
 
         // Music
@@ -169,40 +111,64 @@ function lookupTag($url)
 
         default:
             // Disc folder structure
-            if (substr($low, -9) == '/video_ts' || substr($low, -5) == '/bdmv' )
+            if (substr($low, -9) == '/video_ts' || substr($low, -1) == '/' )
             {
                 return 'zcd="2"';
             }
     }
+    return '';
+}
+
+function getMediaTag( $name, $value )
+{
+    $tag = '';
+    if ( $value != NULL ) {
+        if ( $value != '' ) {
+            $tag = $name.'="'.$value.'"';
+        } else {
+            $tag = $name;
+        }
+        echo $tag;
+    }
     return $tag;
 }
 
+// Map human-friendly function names to command codes
+if ($func != NULL && $func != ''){
+    $cmd = func2Cmd($func);
+}
+
 // Send cmd to the NMT
-if($cmd != NULL && $cmd != '')
-{
+if ($cmd != NULL && $cmd != ''){
     sendCommand($cmd);
 } 
 
-if ((empty($action)) && (!empty($url))){
-    $tag = lookupTag($url);
+if ((empty($action)) && (!empty($url))) {
+    if ( $tag == NULL ) {
+        $tag = guessTag($url);
+    }
     
     echo '<html><body bgcolor="black" focuscolor="black" focustext="black" link="black" onloadset="play">';
     echo '<a onfocusload name="play" href="'.$url.'" '.$tag.'>play</a></body></html>';
 }
 
-if (($action == "playfile") && (!empty ($url))){
-    //We stop what is currently playing or wakeup the nmt from screen saver
-    sendCommand("stop");
+if (($action == "playfile") && (!empty($url))){
+    // We stop what is currently playing or wakeup the nmt from screen saver
+    sendCommand(func2cmd("stop"));
 	sleep(1);
-	//Send the url to tmp/gaya_bc through peach
-	sendPeachGayaCommand("http://localhost:9999/PLoNK_web/plonk_nmt.php?url=$url\n");
+	// Send the url to tmp/gaya_bc through peach
+    if ( $tag == NULL || $tag == '' ) {
+	    sendPeachGayaCommand("http://localhost:9999/PLoNK_web/plonk_nmt.php?url=$url\n");
+    } else {
+	    sendPeachGayaCommand("http://localhost:9999/PLoNK_web/plonk_nmt.php?url=$url&tag=".urlencode($tag)."\n");
+    }
 	if ($return == 0){
         echo "playfile $url";
 	} else {
         echo "FAILED_playfile $url";
 	}
-	# You can launch any url after movie stopped. eg.g http://localhost:8883/start.cgi or your favorite llink server http://192.168.0.7:8001
+	# You can launch any url after media stops playing.
     sleep(2);
-    sendPeachGayaCommand($done);
+    sendPeachGayaCommand("$done\n");
 }
 ?>
