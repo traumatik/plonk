@@ -119,20 +119,6 @@ function guessTag($url)
     return '';
 }
 
-function getMediaTag( $name, $value )
-{
-    $tag = '';
-    if ( $value != NULL ) {
-        if ( $value != '' ) {
-            $tag = $name.'="'.$value.'"';
-        } else {
-            $tag = $name;
-        }
-        echo $tag;
-    }
-    return $tag;
-}
-
 // Map human-friendly function names to command codes
 if ($func != NULL && $func != ''){
     $cmd = func2Cmd($func);
