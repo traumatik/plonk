@@ -1,7 +1,7 @@
 {
     appinfo_format="1",
     name="PLoNK",
-    version="0.0.2",
+    version="0.0.3",
     enabled="1",
     webui_path="#PATH#/webui"
     daemon_script="start_plonk.sh"
