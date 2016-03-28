@@ -1,0 +1,3 @@
+[PLoNK](http://www.wieslander.eu/wiki/index.php?title=PLoNK) is a android application for remote controlling the Popcorn Hour media player. It also allows you to browse the llink media server and select items to be played by your Popcorn Hour (or compatible NMT).
+
+[Pax](http://www.wieslander.eu/wiki/index.php?title=Pax) is Android appliocation for streaming media from you phone to your XBMC or Popcorn Hour.
